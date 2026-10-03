@@ -39,3 +39,22 @@ class MemoryStore:
                 continue
 
             self.add(key, content, category)
+
+    def search(self, query: str) -> list[Memory]:
+
+        memories = self.get_all()
+        query_words = set(query.lower().split())
+
+        results = []
+
+        for memory in memories:
+            text = (
+                memory.content + " " +
+                memory.category + " " +
+                memory.key
+            ).lower()
+
+            if any(word in text for word in query_words):
+                results.append(memory)
+
+        return results

@@ -69,6 +69,24 @@ def run_agent(state, message: str) -> str:
             summary=state.summary,
         )
 
+        relevant_memories = state.memory.search(message)
+        if relevant_memories:
+            memory_text = "\n".join(
+                f"- {memory.content}"
+                for memory in relevant_memories
+            )
+
+            messages.insert(
+                0,
+                {
+                    "role": "system",
+                    "content": (
+                        "Relevant long-term memories about the user:\n"
+                        f"{memory_text}"
+                    ),
+                },
+            )
+
         print("CONTEXT:", messages)
 
         response = model.generate(
