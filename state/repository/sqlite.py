@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from pathlib import Path
+from memory.models import Memory
 from state.repository.base import StateRepository
 
 
@@ -39,6 +40,18 @@ class SQLiteRepository(StateRepository):
                 """
                 INSERT OR IGNORE INTO metadata (id)
                 VALUES (1)
+                """
+            )
+
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS memories (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    key TEXT NOT NULL UNIQUE,
+                    content TEXT NOT NULL,
+                    category TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
                 """
             )
 
@@ -91,3 +104,33 @@ class SQLiteRepository(StateRepository):
             return "", 0
 
         return row[0], row[1]
+
+    def save_memory(self, memory):
+        with self._connect() as connection:
+            connection.execute(
+                """
+                INSERT INTO memories (key, content, category)
+                VALUES (?, ?, ?)
+                ON CONFLICT(key)
+                DO UPDATE SET
+                    content = excluded.content,
+                    category = excluded.category
+                """,
+                (memory.key, memory.content, memory.category)
+            )
+
+
+    def load_memories(self):
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT key, content, category
+                FROM memories
+                ORDER BY id
+                """
+            ).fetchall()
+
+        return [
+            Memory(key=row[0], content=row[1], category=row[2])
+            for row in rows
+        ]

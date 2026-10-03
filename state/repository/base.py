@@ -17,3 +17,11 @@ class StateRepository(ABC):
     @abstractmethod
     def load_metadata(self) -> tuple[str, int]:
         pass
+
+    @abstractmethod
+    def save_memory(self, memory):
+        pass
+
+    @abstractmethod
+    def load_memories(self):
+        pass

@@ -1,10 +1,13 @@
 from state.conversation import Conversation
+from memory.store import MemoryStore
 
 
 class AgentState:
     def __init__(self, repository):
         self.repository = repository
         self.conversation = Conversation()
+        self.memory = MemoryStore(repository)
+
         self.summary = ""
         self.summary_boundary = 0
 

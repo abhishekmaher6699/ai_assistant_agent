@@ -2,22 +2,30 @@ import json
 
 from config import MODEL_PROVIDER
 from models.factory import get_model
+
 from tools.core.registry import get_tool_definitions
 from tools.core.executor import execute_tool
+
 from state.context import ContextManager
 from state.summarizer import ConversationSummarizer
+
+from memory.extractor import MemoryExtractor
 
 
 def run_agent(state, message: str) -> str:
 
     model = get_model(MODEL_PROVIDER)
 
-    context_manager = ContextManager(
-        max_tokens=100
+    context_manager = ContextManager(max_tokens=100)
+    summarizer = ConversationSummarizer(model)
+    memory_extractor = MemoryExtractor(model)
+
+    # Remember where this turn starts
+    start_index = len(
+        state.conversation.get_messages()
     )
 
-    summarizer = ConversationSummarizer(model)
-
+    # Add user's message
     state.conversation.add_message(
         {
             "role": "user",
@@ -26,8 +34,9 @@ def run_agent(state, message: str) -> str:
     )
 
     while True:
+
         turns = context_manager.split_turns(
-           state.conversation.get_messages()
+            state.conversation.get_messages()
         )
 
         recent_turns = context_manager.get_context_turns(
@@ -35,13 +44,12 @@ def run_agent(state, message: str) -> str:
         )
 
         recent_start = len(turns) - len(recent_turns)
-        
+
         old_turns = context_manager.get_unsummarized_old_turns(
             state.conversation.get_messages(),
             state.summary_boundary,
         )
 
-        # Update the summary when older conversation exists.
         if old_turns:
 
             old_messages = []
@@ -54,7 +62,7 @@ def run_agent(state, message: str) -> str:
                 previous_summary=state.summary,
             )
 
-            state.summary_boundary = recent_start 
+            state.summary_boundary = recent_start
 
         messages = context_manager.get_context(
             state.conversation.get_messages(),
@@ -68,6 +76,7 @@ def run_agent(state, message: str) -> str:
             tools=get_tool_definitions(),
         )
 
+        # No tool call → final response
         if not response.tool_calls:
 
             state.conversation.add_message(
@@ -77,14 +86,27 @@ def run_agent(state, message: str) -> str:
                 }
             )
 
+            # Extract memories ONLY from the current turn
+            new_messages = (
+                state.conversation.get_messages()[start_index:]
+            )
+
+            new_memories = memory_extractor.extract(
+                new_messages
+            )
+
+            state.memory.add_extracted(
+                new_memories
+            )
+
             return response.content
 
-        # Store the assistant's tool-call message.
+        # Store assistant tool-call message
         state.conversation.add_message(
             response.assistant_message
         )
 
-        # Execute every tool requested by the model.
+        # Execute tools
         for tool_call in response.tool_calls:
 
             tool_name = tool_call.name

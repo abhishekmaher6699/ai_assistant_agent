@@ -23,6 +23,17 @@ def main():
             
             break
 
+        if user_input.lower() == "/memory":
+            print("\nMEMORIES:")
+
+            for memory in state.memory.get_all():
+                print(
+                    f"- [{memory.category}] {memory.content}"
+                )
+
+            print()
+            continue
+        
         response = run_agent(
             state,
             user_input,
