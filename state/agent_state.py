@@ -6,6 +6,7 @@ class AgentState:
         self.repository = repository
         self.conversation = Conversation()
         self.summary = ""
+        self.summary_boundary = 0
 
     def load(self):
         messages = self.repository.load_messages()

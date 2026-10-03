@@ -48,14 +48,22 @@ class ContextManager:
 
         return selected
 
-    def get_old_turns(self, messages):
+    def get_context_turns(self, messages):
+        turns = self.split_turns(messages)
+
+        return self.select_recent_turns(turns)
+
+    def get_unsummarized_old_turns(self, messages, summary_boundary):
+
         turns = self.split_turns(messages)
         recent_turns = self.select_recent_turns(turns)
 
-        if len(recent_turns) == len(turns):
-            return []
+        recent_start = len(turns) - len(recent_turns)
 
-        return turns[:-len(recent_turns)]
+        old_turns = turns[summary_boundary:recent_start]
+
+        return old_turns
+
 
     def get_context(self, messages, summary=""):
         turns = self.split_turns(messages)
