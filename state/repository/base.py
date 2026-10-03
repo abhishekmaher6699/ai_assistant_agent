@@ -25,3 +25,11 @@ class StateRepository(ABC):
     @abstractmethod
     def load_memories(self):
         pass
+
+    @abstractmethod
+    def save_note(self, title, content):
+        pass
+
+    @abstractmethod
+    def load_notes(self):
+        pass

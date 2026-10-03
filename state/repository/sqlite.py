@@ -55,6 +55,17 @@ class SQLiteRepository(StateRepository):
                 """
             )
 
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS notes (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """
+            )
+
     def save_messages(self, messages):
         with self._connect() as connection:
             connection.execute("DELETE FROM messages")
@@ -132,5 +143,38 @@ class SQLiteRepository(StateRepository):
 
         return [
             Memory(key=row[0], content=row[1], category=row[2])
+            for row in rows
+        ]
+
+    def save_note(self, title, content):
+        with self._connect() as connection:
+            cursor = connection.execute(
+                """
+                INSERT INTO notes (title, content)
+                VALUES (?, ?)
+                """,
+                (title, content)
+            )
+
+            return cursor.lastrowid
+
+
+    def load_notes(self):
+        with self._connect() as connection:
+            rows = connection.execute(
+                """
+                SELECT id, title, content, created_at
+                FROM notes
+                ORDER BY id DESC
+                """
+            ).fetchall()
+
+        return [
+            {
+                "id": row[0],
+                "title": row[1],
+                "content": row[2],
+                "created_at": row[3],
+            }
             for row in rows
         ]

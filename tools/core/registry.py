@@ -1,9 +1,14 @@
 from tools.builtin.clock import get_current_time_tool
 from tools.builtin.date import get_current_date_tool
+from tools.builtin.calculator import calculate_tool
+from tools.builtin.notes import create_note_tool, list_notes_tool
 
 TOOLS = [
     get_current_time_tool,
-    get_current_date_tool
+    get_current_date_tool,
+    calculate_tool,
+    create_note_tool,
+    list_notes_tool
 ]
 
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from tools.core.base import Tool
 
 
-def get_current_date():
+def get_current_date(arguments, context):
     return datetime.now().strftime("%A, %B %d, %Y")
 
 

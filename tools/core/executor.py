@@ -1,7 +1,12 @@
 from tools.core.registry import get_tool
+from tools.core.context import ToolContext
 
 
-def execute_tool(tool_name: str, arguments: dict):
+def execute_tool(
+    tool_name: str,
+    arguments: dict,
+    context: ToolContext,
+):
     tool = get_tool(tool_name)
 
     if tool is None:
@@ -11,8 +16,10 @@ def execute_tool(tool_name: str, arguments: dict):
         }
 
     try:
-
-        result =  tool.function(**arguments)
+        result = tool.function(
+            arguments,
+            context,
+        )
 
         return {
             "success": True,
@@ -22,5 +29,5 @@ def execute_tool(tool_name: str, arguments: dict):
     except Exception as error:
         return {
             "success": False,
-            "error": str(error)
+            "error": str(error),
         }

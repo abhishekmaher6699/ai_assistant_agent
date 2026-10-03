@@ -5,6 +5,7 @@ from models.factory import get_model
 
 from tools.core.registry import get_tool_definitions
 from tools.core.executor import execute_tool
+from tools.core.context import ToolContext
 
 from state.context import ContextManager
 from state.summarizer import ConversationSummarizer
@@ -31,6 +32,10 @@ def run_agent(state, message: str) -> str:
             "role": "user",
             "content": message,
         }
+    )
+
+    tool_context = ToolContext(
+        repository=state.repository,    
     )
 
     while True:
@@ -87,7 +92,7 @@ def run_agent(state, message: str) -> str:
                 },
             )
 
-        print("CONTEXT:", messages)
+        # print("CONTEXT:", messages)
 
         response = model.generate(
             messages=messages,
@@ -137,6 +142,7 @@ def run_agent(state, message: str) -> str:
             result = execute_tool(
                 tool_name,
                 arguments,
+                tool_context,
             )
 
             state.conversation.add_message(
