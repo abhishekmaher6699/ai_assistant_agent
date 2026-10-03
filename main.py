@@ -33,7 +33,19 @@ def main():
 
             print()
             continue
-        
+
+        if user_input.lower().startswith("/plan "):
+            message = user_input[6:]
+
+            response = run_agent(
+                state,
+                message,
+                use_planner=True,
+            )
+
+            print(f"Assistant > {response}\n")
+            continue
+
         response = run_agent(
             state,
             user_input,
