@@ -9,14 +9,18 @@ def main():
     
     repository = SQLiteRepository()
     state = AgentState(repository)
-    state.laod()
+    state.load()
 
     while True:
         user_input = input("You > ")
 
         if user_input.lower() == "exit":
-            state.save()
+            
+            # print("\nFULL HISTORY:")
             # print(state.conversation.get_messages())
+
+            state.save()
+            
             break
 
         response = run_agent(

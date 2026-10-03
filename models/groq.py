@@ -18,7 +18,7 @@ class GroqModel(Model):
             model=self.model,
             messages=messages,
             tools=tools,
-            tool_choice="auto" if tools else None,
+            tool_choice="auto" if tools else "none",
             max_tokens=500,
         )
 
