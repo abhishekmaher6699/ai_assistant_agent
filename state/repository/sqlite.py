@@ -25,6 +25,23 @@ class SQLiteRepository(StateRepository):
                 """
             )
 
+            connection.execute(
+                """
+                CREATE TABLE IF NOT EXISTS metadata (
+                    id INTEGER PRIMARY KEY CHECK (id = 1),
+                    summary TEXT NOT NULL DEFAULT '',
+                    summary_boundary INTEGER NOT NULL DEFAULT 0
+                )
+                """
+            )
+
+            connection.execute(
+                """
+                INSERT OR IGNORE INTO metadata (id)
+                VALUES (1)
+                """
+            )
+
     def save_messages(self, messages):
         with self._connect() as connection:
             connection.execute("DELETE FROM messages")
@@ -47,3 +64,30 @@ class SQLiteRepository(StateRepository):
             json.loads(row[0])
             for row in rows
         ]
+
+    def save_metadata(self, summary, summary_boundary):
+
+        with self._connect() as connection:
+            connection.execute(
+                """
+                UPDATE metadata
+                SET summary = ?, summary_boundary = ?
+                WHERE id = 1
+                """,
+                (summary, summary_boundary)
+            )
+
+    def load_metadata(self):
+        with self._connect() as connection:
+            row = connection.execute(
+                """
+                SELECT summary, summary_boundary
+                FROM metadata
+                WHERE id = 1
+                """
+            ).fetchone()
+
+        if row is None:
+            return "", 0
+
+        return row[0], row[1]

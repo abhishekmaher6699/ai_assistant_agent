@@ -14,7 +14,16 @@ class AgentState:
         for message in messages:
             self.conversation.add_message(message)
 
+        self.summary, self.summary_boundary = (
+            self.repository.load_metadata()
+        )
+
     def save(self):
         self.repository.save_messages(
             self.conversation.get_messages()
+        )
+
+        self.repository.save_metadata(
+            self.summary,
+            self.summary_boundary,
         )
