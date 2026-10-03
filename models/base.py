@@ -23,5 +23,6 @@ class Model(ABC):
         self,
         messages: list[dict],
         tools: list[dict] | None = None,
+        response_format: dict | None = None,
     ) -> ModelResponse:
         pass

@@ -12,13 +12,14 @@ class GroqModel(Model):
         self.client = Groq(api_key=GROQ_API_KEY)
         self.model = "qwen/qwen3.8-27b"
 
-    def generate(self, messages, tools=None):
+    def generate(self, messages, tools=None, response_format=None):
 
         response = self.client.chat.completions.create(
             model=self.model,
             messages=messages,
             tools=tools,
             tool_choice="auto" if tools else "none",
+            response_format=response_format,
             max_tokens=500,
         )
 

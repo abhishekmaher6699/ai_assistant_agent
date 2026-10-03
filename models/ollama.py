@@ -8,12 +8,13 @@ class OllamaModel(Model):
     def __init__(self):
         self.model = "qwen3:8b"
 
-    def generate(self, messages, tools=None):
+    def generate(self, messages, tools=None, response_format=None):
 
         response = ollama.chat(
             model=self.model,
             messages=messages,
             tools=tools,
+            format=response_format,
         )
 
         message = response.message
